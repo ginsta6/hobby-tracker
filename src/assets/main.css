@@ -1,0 +1,16 @@
+/* General button styling */
+button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  background-color: #34d399; /* Mint green */
+  color: white;
+  border: none;
+  border-radius: 8px !important;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background-color: #10b981; /* Darker green */
+  transform: translateY(-3px); /* Slightly raise on hover */
+}
