@@ -1,3 +1,8 @@
+// Function to get progress from localStorage
+export const getProgress = () => {
+  return JSON.parse(localStorage.getItem('habitProgress')) || {}
+}
+
 // Function to get hobbies from localStorage (returns an array of objects)
 export const getHobbies = () => {
   return JSON.parse(localStorage.getItem('hobbies')) || []
@@ -21,21 +26,35 @@ export const saveToHobbies = (hobbyName) => {
 // Function to remove a hobby by name
 export const removeFromHobbies = (hobbyID) => {
   let hobbies = getHobbies()
+  const storedProgress = getProgress()
 
   // Filter out the hobby (case-insensitive match)
   hobbies = hobbies.filter((hobby) => hobby.id !== hobbyID)
 
-  // Reassign IDs after removal
-  hobbies = hobbies.map((hobby, index) => ({
-    id: index + 1,
-    name: hobby.name,
-  }))
+  // Create a mapping of old IDs to new IDs
+  const idMapping = {}
+  hobbies.forEach((hobby, index) => {
+    idMapping[hobby.id] = index + 1
+    hobby.id = index + 1
+  })
+
+  // Update progress data with new IDs
+  Object.keys(storedProgress).forEach((date) => {
+    const newProgress = {}
+    Object.entries(storedProgress[date]).forEach(([oldId, data]) => {
+      if (idMapping[oldId]) {
+        newProgress[idMapping[oldId]] = data
+      }
+    })
+    storedProgress[date] = newProgress
+  })
 
   localStorage.setItem('hobbies', JSON.stringify(hobbies))
+  localStorage.setItem('habitProgress', JSON.stringify(storedProgress))
 }
 
 export const createDailyProgress = (habits, date) => {
-  const storedProgress = JSON.parse(localStorage.getItem('habitProgress')) || {}
+  const storedProgress = getProgress()
 
   if (!storedProgress[date]) {
     storedProgress[date] = habits.reduce((acc, habit) => {
@@ -48,12 +67,12 @@ export const createDailyProgress = (habits, date) => {
 }
 
 export const markHabitAsCompleted = (habitId, date) => {
-  const storedProgress = JSON.parse(localStorage.getItem('habitProgress')) || {}
+  const storedProgress = getProgress()
 
   // Check if the date exists and the habit exists for that day
   if (storedProgress[date]?.[habitId]) {
-    storedProgress[date][habitId].completed = true // Mark as completed
+    // Toggle the completion status
+    storedProgress[date][habitId].completed = !storedProgress[date][habitId].completed
     localStorage.setItem('habitProgress', JSON.stringify(storedProgress))
   }
 }
-
