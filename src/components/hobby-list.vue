@@ -52,11 +52,13 @@ const submitInput = () => {
   }
 }
 
-const removeHobby = (hobby) => {
-  removeFromHobbies(hobby.id)
-  hobbyList.value = getHobbies()
-  createDailyProgress(hobbyList.value, props.date)
-  loadProgress()
+const removeFromDay = (hobby) => {
+  const storedProgress = getProgress()
+  if (storedProgress[props.date]?.[hobby.id]) {
+    delete storedProgress[props.date][hobby.id]
+    localStorage.setItem('habitProgress', JSON.stringify(storedProgress))
+    loadProgress()
+  }
 }
 
 const markDone = (hobby) => {
@@ -83,7 +85,7 @@ const markDone = (hobby) => {
         ></i>
       </button>
       <span :class="{ 'completed-text': progress[hobby.id]?.completed }">{{ hobby.name }}</span>
-      <button class="rounded-circle round-button" @click="removeHobby(hobby)">
+      <button class="rounded-circle round-button" @click="removeFromDay(hobby)">
         <i class="bi bi-x"></i>
       </button>
     </li>

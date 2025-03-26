@@ -11,7 +11,7 @@ const toggleNavbar = () => {
 <template>
   <nav class="navbar navbar-expand-lg navbar-light bg-light-green">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#">MyBrand</a>
+      <a class="navbar-brand" href="#">BimBam</a>
       <button
         class="navbar-toggler"
         type="button"
@@ -26,10 +26,10 @@ const toggleNavbar = () => {
       <div class="collapse navbar-collapse" :class="{ show: isOpen }" id="navbarNav">
         <ul class="navbar-nav ms-auto">
           <li class="nav-item">
-            <router-link class="nav-link" to="/">Home</router-link>
+            <router-link class="nav-link" to="/">Tracker</router-link>
           </li>
           <li class="nav-item">
-            <router-link class="nav-link" to="/about">About</router-link>
+            <router-link class="nav-link" to="/manage-habits">Habbit Management</router-link>
           </li>
         </ul>
       </div>
