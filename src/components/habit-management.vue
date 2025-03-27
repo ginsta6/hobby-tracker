@@ -126,30 +126,43 @@ const saveToHobbiesFormatted = (name) => {
   <div class="habit-management">
     <h2>Habit Management</h2>
     <div class="add-habit">
-      <input
-        v-model="newHobbyName"
-        type="text"
-        class="form-control"
-        placeholder="Add new habit"
-        required
-        @keydown.enter="saveToHobbiesFormatted(newHobbyName)"
-      />
-      <button class="btn btn-primary" @click="saveToHobbiesFormatted(newHobbyName)">Add</button>
+      <div class="add-habit-section">
+        <input
+          v-model="newHobbyName"
+          type="text"
+          class="form-control"
+          placeholder="Add new habit"
+          required
+          title="Enter the name of your new habit"
+          @keydown.enter="saveToHobbiesFormatted(newHobbyName)"
+        />
+        <button
+          class="btn btn-primary"
+          @click="saveToHobbiesFormatted(newHobbyName)"
+          title="Add new habit"
+        >
+          Add
+        </button>
+      </div>
     </div>
 
-    <ul class="habit-list">
-      <li v-for="hobby in hobbies" :key="hobby.id" class="habit-item">
+    <div class="habit-list">
+      <div v-if="hobbies.length === 0" class="empty-state">
+        <p>No habits added yet. Add your first habit above!</p>
+      </div>
+      <div v-else class="habit-item" v-for="hobby in hobbies" :key="hobby.id">
         <div v-if="isEditing && editingHobby?.id === hobby.id" class="edit-mode">
           <input
             v-model="newHobbyName"
             type="text"
             class="form-control"
+            title="Edit habit name"
             @keydown.enter="saveEdit"
           />
-          <button class="btn btn-success" @click="saveEdit">
+          <button class="btn btn-success" @click="saveEdit" title="Save changes">
             <i class="bi bi-check-lg"></i>
           </button>
-          <button class="btn btn-danger" @click="cancelEdit">
+          <button class="btn btn-danger" @click="cancelEdit" title="Cancel editing">
             <i class="bi bi-x-lg"></i>
           </button>
         </div>
@@ -161,23 +174,28 @@ const saveToHobbiesFormatted = (name) => {
             </span>
           </div>
           <div class="habit-actions">
-            <button class="btn btn-primary" @click="startEditing(hobby)">
+            <button
+              class="btn btn-outline-primary"
+              @click="startEditing(hobby)"
+              title="Edit habit name"
+            >
               <i class="bi bi-pencil"></i>
             </button>
             <button
               class="btn"
               :class="hobby.active ? 'btn-warning' : 'btn-success'"
               @click="stopHabit(hobby)"
+              title="Stop/Resume habit"
             >
               <i class="bi" :class="hobby.active ? 'bi-pause' : 'bi-play'"></i>
             </button>
-            <button class="btn btn-danger" @click="deleteHabit(hobby)">
+            <button class="btn btn-outline-danger" @click="deleteHabit(hobby)" title="Delete habit">
               <i class="bi bi-trash"></i>
             </button>
           </div>
         </div>
-      </li>
-    </ul>
+      </div>
+    </div>
     <ConfirmModal
       v-bind="modalConfig"
       @confirm="handleModalConfirm"
@@ -330,6 +348,36 @@ const saveToHobbiesFormatted = (name) => {
 .btn-secondary {
   background-color: var(--text-secondary);
   color: var(--white);
+}
+
+.btn-outline-primary {
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+  background: transparent;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary-color);
+  color: var(--white);
+}
+
+.btn-outline-danger {
+  border: 1px solid #ef4444;
+  color: #ef4444;
+  background: transparent;
+}
+
+.btn-outline-danger:hover {
+  background-color: #ef4444;
+  color: var(--white);
+}
+
+.btn-warning:hover {
+  background-color: #d97706;
+}
+
+.btn-success:hover {
+  background-color: #16a34a;
 }
 
 @media (max-width: 640px) {

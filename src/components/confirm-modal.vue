@@ -35,13 +35,18 @@ onUnmounted(() => {
 <template>
   <div v-if="isOpen" class="modal-overlay" @click="emit('close')">
     <div class="modal-content" @click.stop>
-      <h3>{{ title }}</h3>
-      <p>{{ message }}</p>
+      <button class="close-button" @click="emit('close')">
+        <i class="bi bi-x-lg"></i>
+      </button>
+      <div class="modal-header">
+        <h3 class="modal-title">{{ title }}</h3>
+      </div>
+      <p class="modal-message">{{ message }}</p>
       <div class="modal-actions">
-        <button class="btn btn-secondary" @click="emit('cancel')">
+        <button class="modal-button cancel" @click="emit('cancel')">
           {{ cancelText }}
         </button>
-        <button class="btn btn-primary" @click="emit('confirm')">
+        <button class="modal-button confirm" @click="emit('confirm')">
           {{ confirmText }}
         </button>
       </div>
@@ -58,34 +63,101 @@ onUnmounted(() => {
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   z-index: 1000;
 }
 
 .modal-content {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  min-width: 300px;
+  background-color: var(--white);
+  padding: 2rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
   max-width: 90%;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 400px;
+  position: relative;
 }
 
-.modal-content h3 {
-  margin-top: 0;
-  margin-bottom: 15px;
-  color: #333;
+.modal-header {
+  margin-bottom: 1.5rem;
 }
 
-.modal-content p {
-  margin-bottom: 20px;
-  color: #666;
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.modal-message {
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+  line-height: 1.5;
 }
 
 .modal-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 1rem;
+}
+
+.modal-button {
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.modal-button.cancel {
+  background-color: var(--text-secondary);
+  color: var(--white);
+}
+
+.modal-button.cancel:hover {
+  background-color: #4b5563;
+}
+
+.modal-button.confirm {
+  background-color: var(--primary-color);
+  color: var(--white);
+}
+
+.modal-button.confirm:hover {
+  background-color: var(--primary-dark);
+}
+
+.close-button {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  line-height: 1;
+  transition: color 0.3s ease;
+}
+
+.close-button:hover {
+  color: var(--text-primary);
+}
+
+@media (max-width: 640px) {
+  .modal-content {
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+
+  .modal-title {
+    font-size: 1.25rem;
+  }
+
+  .modal-button {
+    padding: 0.5rem 1rem;
+  }
 }
 </style>

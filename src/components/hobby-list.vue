@@ -84,6 +84,7 @@ const markDone = (hobby) => {
           class="round-button"
           @click="markDone(hobby)"
           :class="{ completed: progress[hobby.id]?.completed }"
+          :title="progress[hobby.id]?.completed ? 'Mark as incomplete' : 'Mark as complete'"
         >
           <i
             class="bi"
@@ -93,7 +94,7 @@ const markDone = (hobby) => {
         <span class="hobby-name" :class="{ 'completed-text': progress[hobby.id]?.completed }">
           {{ hobby.name }}
         </span>
-        <button class="round-button" @click="removeFromDay(hobby)">
+        <button class="round-button" @click="removeFromDay(hobby)" title="Remove from today's list">
           <i class="bi bi-x"></i>
         </button>
       </li>
