@@ -108,6 +108,18 @@ const stopHabit = (hobby) => {
     },
   })
 }
+
+const saveToHobbiesFormatted = (name) => {
+  if (!name.trim()) return
+  const formattedName = name
+    .trim()
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ')
+  saveToHobbies(formattedName)
+  newHobbyName.value = ''
+  hobbies.value = getHobbies()
+}
 </script>
 
 <template>
@@ -119,16 +131,10 @@ const stopHabit = (hobby) => {
         type="text"
         class="form-control"
         placeholder="Add new habit"
-        @keydown.enter="
-          (saveToHobbies(newHobbyName), (newHobbyName = ''), (hobbies = getHobbies()))
-        "
+        required
+        @keydown.enter="saveToHobbiesFormatted(newHobbyName)"
       />
-      <button
-        class="btn btn-primary"
-        @click="(saveToHobbies(newHobbyName), (newHobbyName = ''), (hobbies = getHobbies()))"
-      >
-        Add
-      </button>
+      <button class="btn btn-primary" @click="saveToHobbiesFormatted(newHobbyName)">Add</button>
     </div>
 
     <ul class="habit-list">
@@ -140,8 +146,12 @@ const stopHabit = (hobby) => {
             class="form-control"
             @keydown.enter="saveEdit"
           />
-          <button class="btn btn-success" @click="saveEdit">Save</button>
-          <button class="btn btn-secondary" @click="cancelEdit">Cancel</button>
+          <button class="btn btn-success" @click="saveEdit">
+            <i class="bi bi-check-lg"></i>
+          </button>
+          <button class="btn btn-danger" @click="cancelEdit">
+            <i class="bi bi-x-lg"></i>
+          </button>
         </div>
         <div v-else class="view-mode">
           <div class="habit-info">
@@ -179,112 +189,173 @@ const stopHabit = (hobby) => {
 
 <style scoped>
 .habit-management {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 20px;
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.habit-management h2 {
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  font-weight: 600;
 }
 
 .add-habit {
   display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 1rem;
+  margin-bottom: 2rem;
 }
 
 .habit-list {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
 
 .habit-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  background: var(--white);
+  border-radius: var(--radius-md);
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow-sm);
   transition: all 0.3s ease;
+  overflow: hidden;
 }
 
 .habit-item:hover {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
 .edit-mode {
   display: flex;
-  gap: 10px;
+  gap: 0.5rem;
+  padding: 1rem;
   width: 100%;
+}
+
+.edit-mode .form-control {
+  flex: 1;
+}
+
+.edit-mode .btn {
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-mode .btn i {
+  font-size: 1.2rem;
 }
 
 .view-mode {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
-}
-
-.habit-actions {
-  display: flex;
-  gap: 5px;
+  padding: 1rem;
 }
 
 .habit-info {
   display: flex;
   align-items: center;
-  gap: 10px;
-}
-
-.status-indicator {
-  font-size: 0.8em;
-  padding: 2px 8px;
-  border-radius: 12px;
-  background-color: #e9ecef;
-  color: #6c757d;
-}
-
-.status-indicator.active {
-  background-color: #d4edda;
-  color: #155724;
-}
-
-.habit-name.inactive {
-  color: #6c757d;
-  text-decoration: line-through;
+  gap: 1rem;
 }
 
 .habit-name {
-  font-size: 1.1em;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.habit-name.inactive {
+  color: var(--text-secondary);
+  text-decoration: line-through;
+}
+
+.status-indicator {
+  font-size: 0.8rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  background-color: #e5e7eb;
+  color: var(--text-secondary);
+}
+
+.status-indicator.active {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.habit-actions {
+  display: flex;
+  gap: 0.5rem;
 }
 
 .btn {
-  padding: 5px 10px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+  padding: 0.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm) !important;
+}
+
+.btn i {
+  font-size: 1.1rem;
 }
 
 .btn-primary {
-  background-color: #007bff;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--white);
 }
 
 .btn-success {
-  background-color: #28a745;
-  color: white;
+  background-color: #22c55e;
+  color: var(--white);
 }
 
 .btn-warning {
-  background-color: #ffc107;
-  color: black;
+  background-color: #f59e0b;
+  color: var(--white);
 }
 
 .btn-danger {
-  background-color: #dc3545;
-  color: white;
+  background-color: #ef4444;
+  color: var(--white);
 }
 
 .btn-secondary {
-  background-color: #6c757d;
-  color: white;
+  background-color: var(--text-secondary);
+  color: var(--white);
+}
+
+@media (max-width: 640px) {
+  .habit-management {
+    margin: 1rem auto;
+  }
+
+  .habit-management h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .add-habit {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .view-mode {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .habit-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
 }
 </style>

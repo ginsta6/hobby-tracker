@@ -72,57 +72,131 @@ const markDone = (hobby) => {
 </script>
 
 <template>
-  <ul>
-    <li
-      v-for="hobby in hobbyList.filter((h) => progress[h.id])"
-      :key="hobby.id"
-      :class="{ completed: progress[hobby.id]?.completed }"
-    >
-      <button
-        class="rounded-circle round-button"
-        @click="markDone(hobby)"
+  <div class="hobby-list-container">
+    <ul class="hobby-list">
+      <li
+        v-for="hobby in hobbyList.filter((h) => progress[h.id])"
+        :key="hobby.id"
+        class="hobby-item"
         :class="{ completed: progress[hobby.id]?.completed }"
       >
-        <i
-          class="bi"
-          :class="progress[hobby.id]?.completed ? 'bi-check-circle-fill' : 'bi-check'"
-        ></i>
-      </button>
-      <span :class="{ 'completed-text': progress[hobby.id]?.completed }">{{ hobby.name }}</span>
-      <button class="rounded-circle round-button" @click="removeFromDay(hobby)">
-        <i class="bi bi-x"></i>
-      </button>
-    </li>
-  </ul>
+        <button
+          class="round-button"
+          @click="markDone(hobby)"
+          :class="{ completed: progress[hobby.id]?.completed }"
+        >
+          <i
+            class="bi"
+            :class="progress[hobby.id]?.completed ? 'bi-check-circle-fill' : 'bi-check'"
+          ></i>
+        </button>
+        <span class="hobby-name" :class="{ 'completed-text': progress[hobby.id]?.completed }">
+          {{ hobby.name }}
+        </span>
+        <button class="round-button" @click="removeFromDay(hobby)">
+          <i class="bi bi-x"></i>
+        </button>
+      </li>
+    </ul>
+  </div>
 </template>
 
 <style scoped>
-.round-button {
-  width: 25px;
-  height: 25px;
+.hobby-list-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.hobby-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.hobby-item {
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  padding: 0;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
 }
 
-li {
-  display: flex;
-  justify-content: space-between;
+.hobby-item:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
-.completed {
+.hobby-item.completed {
   opacity: 0.7;
+}
+
+.hobby-name {
+  flex: 1;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--text-primary);
 }
 
 .completed-text {
   text-decoration: line-through;
-  color: #6c757d;
+  color: var(--text-secondary);
+}
+
+.round-button {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: none;
+  background-color: var(--primary-color);
+  color: var(--white);
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.round-button:hover {
+  transform: scale(1.1);
+  box-shadow: var(--shadow-md);
 }
 
 .round-button.completed {
-  background-color: #28a745;
-  color: white;
+  background-color: #4caf50;
+  color: var(--white);
+  transform: scale(1.1);
+}
+
+.round-button.completed:hover {
+  background-color: #45a049;
+}
+
+@media (max-width: 640px) {
+  .hobby-list-container {
+    margin: 1rem auto;
+  }
+
+  .hobby-item {
+    padding: 0.75rem;
+  }
+
+  .hobby-name {
+    font-size: 1rem;
+  }
+
+  .round-button {
+    width: 2rem;
+    height: 2rem;
+    font-size: 1rem;
+  }
 }
 </style>
