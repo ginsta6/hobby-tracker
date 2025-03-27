@@ -31,9 +31,9 @@ const isSelected = (date) => {
 }
 
 const handleDateClick = (date) => {
-    selectedDay.value = date
-    const newdate = date.toLocaleDateString('en-CA')
-    router.replace(`/day/${newdate}`)
+  selectedDay.value = date
+  const newdate = date.toLocaleDateString('en-CA')
+  router.replace(`/day/${newdate}`)
 }
 
 // Ensures the input is properly rendered before clicking it
@@ -47,6 +47,8 @@ const openDatePicker = async () => {
 // Updates `selectedDay` when user selects a date from the picker
 const updateSelectedDay = (event) => {
   selectedDay.value = new Date(event.target.value)
+  const newdate = event.target.value
+  router.replace(`/day/${newdate}`)
   scrollToMiddle()
 }
 

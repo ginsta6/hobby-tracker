@@ -1,11 +1,20 @@
 <script setup>
 import { getHobbies, removeFromHobbies, saveToHobbies } from '@/utils/localstorage'
 import { ref, onMounted, onUnmounted } from 'vue'
+import ConfirmModal from './confirm-modal.vue'
 
 const hobbies = ref([])
 const isEditing = ref(false)
 const editingHobby = ref(null)
 const newHobbyName = ref('')
+const modalConfig = ref({
+  isOpen: false,
+  title: '',
+  message: '',
+  confirmText: '',
+  cancelText: '',
+  onConfirm: null,
+})
 
 // Custom event handler
 const handleStorageChange = () => {
@@ -48,27 +57,56 @@ const cancelEdit = () => {
   newHobbyName.value = ''
 }
 
-const deleteHabit = (hobby) => {
-  if (confirm('Are you sure you want to delete this habit? This will remove all its records.')) {
-    removeFromHobbies(hobby.id)
-    hobbies.value = getHobbies()
+const showModal = (config) => {
+  modalConfig.value = {
+    isOpen: true,
+    ...config,
   }
+}
+
+const handleModalConfirm = () => {
+  if (modalConfig.value.onConfirm) {
+    modalConfig.value.onConfirm()
+  }
+  modalConfig.value.isOpen = false
+}
+
+const handleModalCancel = () => {
+  modalConfig.value.isOpen = false
+}
+
+const deleteHabit = (hobby) => {
+  showModal({
+    title: 'Delete Habit',
+    message: 'Are you sure you want to delete this habit? This will remove all its records.',
+    confirmText: 'Delete',
+    cancelText: 'Cancel',
+    onConfirm: () => {
+      removeFromHobbies(hobby.id)
+      hobbies.value = getHobbies()
+    },
+  })
 }
 
 const stopHabit = (hobby) => {
   const action = hobby.active ? 'stop' : 'resume'
-  if (confirm(`Are you sure you want to ${action} this habit?`)) {
-    const currentHobbies = getHobbies()
-    const updatedHobbies = currentHobbies.map((h) => {
-      if (h.id === hobby.id) {
-        return { ...h, active: !h.active }
-      }
-      return h
-    })
-    localStorage.setItem('hobbies', JSON.stringify(updatedHobbies))
-    // Update the local ref directly
-    hobbies.value = updatedHobbies
-  }
+  showModal({
+    title: `${action.charAt(0).toUpperCase() + action.slice(1)} Habit`,
+    message: `Are you sure you want to ${action} this habit?`,
+    confirmText: action.charAt(0).toUpperCase() + action.slice(1),
+    cancelText: 'Cancel',
+    onConfirm: () => {
+      const currentHobbies = getHobbies()
+      const updatedHobbies = currentHobbies.map((h) => {
+        if (h.id === hobby.id) {
+          return { ...h, active: !h.active }
+        }
+        return h
+      })
+      localStorage.setItem('hobbies', JSON.stringify(updatedHobbies))
+      hobbies.value = updatedHobbies
+    },
+  })
 }
 </script>
 
@@ -130,6 +168,12 @@ const stopHabit = (hobby) => {
         </div>
       </li>
     </ul>
+    <ConfirmModal
+      v-bind="modalConfig"
+      @confirm="handleModalConfirm"
+      @cancel="handleModalCancel"
+      @close="handleModalCancel"
+    />
   </div>
 </template>
 
