@@ -4,7 +4,6 @@ import {
   getHobbies,
   getProgress,
   markHabitAsCompleted,
-  removeFromHobbies,
   saveToHobbies,
 } from '@/utils/localstorage'
 import { nextTick, onMounted, ref, watch } from 'vue'
@@ -33,7 +32,7 @@ watch(
 
 const loadProgress = () => {
   const storedProgress = getProgress()
-  progress.value = storedProgress[props.date] || {}
+  progress.value = { ...storedProgress[props.date] } || {}
 }
 
 const startEditing = () => {
@@ -57,20 +56,25 @@ const removeFromDay = (hobby) => {
   if (storedProgress[props.date]?.[hobby.id]) {
     delete storedProgress[props.date][hobby.id]
     localStorage.setItem('habitProgress', JSON.stringify(storedProgress))
-    loadProgress()
+    if (progress.value[hobby.id]) {
+      delete progress.value[hobby.id]
+    }
   }
 }
 
 const markDone = (hobby) => {
   markHabitAsCompleted(hobby.id, props.date)
-  loadProgress()
+  if (!progress.value[hobby.id]) {
+    progress.value[hobby.id] = {}
+  }
+  progress.value[hobby.id].completed = !progress.value[hobby.id].completed
 }
 </script>
 
 <template>
   <ul>
     <li
-      v-for="hobby in hobbyList"
+      v-for="hobby in hobbyList.filter((h) => progress[h.id])"
       :key="hobby.id"
       :class="{ completed: progress[hobby.id]?.completed }"
     >
@@ -89,21 +93,6 @@ const markDone = (hobby) => {
         <i class="bi bi-x"></i>
       </button>
     </li>
-    <div class="d-inline-block">
-      <button v-if="!isEditing" class="rounded-circle round-button" @click="startEditing">
-        <i class="bi bi-plus"></i>
-      </button>
-
-      <input
-        v-else
-        v-model="hobbyInput"
-        ref="inputFieldHobby"
-        type="text"
-        class="form-control input-field"
-        @blur="isEditing = false"
-        @keydown.enter="submitInput"
-      />
-    </div>
   </ul>
 </template>
 

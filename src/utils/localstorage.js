@@ -11,6 +11,8 @@ export const getHobbies = () => {
 // Function to save a hobby as an object { id, name }
 export const saveToHobbies = (hobbyName) => {
   const hobbies = getHobbies()
+  const storedProgress = getProgress()
+  const today = new Date().toISOString().split('T')[0]
 
   // Check if the hobby already exists (case-insensitive match)
   if (!hobbies.some((hobby) => hobby.name.toLowerCase() === hobbyName.toLowerCase())) {
@@ -20,6 +22,12 @@ export const saveToHobbies = (hobbyName) => {
     }
     hobbies.push(newHobby)
     localStorage.setItem('hobbies', JSON.stringify(hobbies))
+
+    // Add the new hobby to today's progress
+    if (storedProgress[today]) {
+      storedProgress[today][newHobby.id] = { name: hobbyName, completed: false }
+      localStorage.setItem('habitProgress', JSON.stringify(storedProgress))
+    }
   }
 }
 
@@ -56,7 +64,8 @@ export const removeFromHobbies = (hobbyID) => {
 export const createDailyProgress = (habits, date) => {
   const storedProgress = getProgress()
 
-  if (!storedProgress[date]) {
+  // If the date doesn't exist or has no entries, create/update it with current habits
+  if (!storedProgress[date] || Object.keys(storedProgress[date]).length === 0) {
     storedProgress[date] = habits.reduce((acc, habit) => {
       acc[habit.id] = { name: habit.name, completed: false } // Store name + completion
       return acc
