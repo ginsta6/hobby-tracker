@@ -1,14 +1,24 @@
 <script setup>
 import { getHobbies, removeFromHobbies, saveToHobbies } from '@/utils/localstorage'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 
 const hobbies = ref([])
 const isEditing = ref(false)
 const editingHobby = ref(null)
 const newHobbyName = ref('')
 
+// Custom event handler
+const handleStorageChange = () => {
+  hobbies.value = getHobbies()
+}
+
 onMounted(() => {
   hobbies.value = getHobbies()
+  window.addEventListener('storage', handleStorageChange)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('storage', handleStorageChange)
 })
 
 const startEditing = (hobby) => {
@@ -25,7 +35,7 @@ const saveEdit = () => {
   // Add the new hobby
   saveToHobbies(newHobbyName.value)
 
-  // Refresh the list
+  // Update the local ref
   hobbies.value = getHobbies()
   isEditing.value = false
   editingHobby.value = null
@@ -46,10 +56,18 @@ const deleteHabit = (hobby) => {
 }
 
 const stopHabit = (hobby) => {
-  if (confirm('Are you sure you want to stop this habit? It will be removed from future days.')) {
-    // TODO: Implement stop habit functionality
-    // This will require adding a new field to the hobby object to track if it's active
-    console.log('Stop habit:', hobby)
+  const action = hobby.active ? 'stop' : 'resume'
+  if (confirm(`Are you sure you want to ${action} this habit?`)) {
+    const currentHobbies = getHobbies()
+    const updatedHobbies = currentHobbies.map((h) => {
+      if (h.id === hobby.id) {
+        return { ...h, active: !h.active }
+      }
+      return h
+    })
+    localStorage.setItem('hobbies', JSON.stringify(updatedHobbies))
+    // Update the local ref directly
+    hobbies.value = updatedHobbies
   }
 }
 </script>
@@ -63,19 +81,13 @@ const stopHabit = (hobby) => {
         type="text"
         class="form-control"
         placeholder="Add new habit"
-        @keydown.enter="(
-          saveToHobbies(newHobbyName),
-          newHobbyName = '',
-          hobbies = getHobbies())
+        @keydown.enter="
+          (saveToHobbies(newHobbyName), (newHobbyName = ''), (hobbies = getHobbies()))
         "
       />
       <button
         class="btn btn-primary"
-        @click="(
-          saveToHobbies(newHobbyName),
-          newHobbyName = '',
-          hobbies = getHobbies())
-        "
+        @click="(saveToHobbies(newHobbyName), (newHobbyName = ''), (hobbies = getHobbies()))"
       >
         Add
       </button>
@@ -94,13 +106,22 @@ const stopHabit = (hobby) => {
           <button class="btn btn-secondary" @click="cancelEdit">Cancel</button>
         </div>
         <div v-else class="view-mode">
-          <span class="habit-name">{{ hobby.name }}</span>
+          <div class="habit-info">
+            <span class="habit-name" :class="{ inactive: !hobby.active }">{{ hobby.name }}</span>
+            <span class="status-indicator" :class="{ active: hobby.active }">
+              {{ hobby.active ? 'Active' : 'Paused' }}
+            </span>
+          </div>
           <div class="habit-actions">
             <button class="btn btn-primary" @click="startEditing(hobby)">
               <i class="bi bi-pencil"></i>
             </button>
-            <button class="btn btn-warning" @click="stopHabit(hobby)">
-              <i class="bi bi-pause"></i>
+            <button
+              class="btn"
+              :class="hobby.active ? 'btn-warning' : 'btn-success'"
+              @click="stopHabit(hobby)"
+            >
+              <i class="bi" :class="hobby.active ? 'bi-pause' : 'bi-play'"></i>
             </button>
             <button class="btn btn-danger" @click="deleteHabit(hobby)">
               <i class="bi bi-trash"></i>
@@ -138,6 +159,11 @@ const stopHabit = (hobby) => {
   margin-bottom: 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.habit-item:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .edit-mode {
@@ -156,6 +182,30 @@ const stopHabit = (hobby) => {
 .habit-actions {
   display: flex;
   gap: 5px;
+}
+
+.habit-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.status-indicator {
+  font-size: 0.8em;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background-color: #e9ecef;
+  color: #6c757d;
+}
+
+.status-indicator.active {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.habit-name.inactive {
+  color: #6c757d;
+  text-decoration: line-through;
 }
 
 .habit-name {

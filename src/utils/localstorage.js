@@ -19,6 +19,7 @@ export const saveToHobbies = (hobbyName) => {
     const newHobby = {
       id: hobbies.length + 1, // Assign next ID
       name: hobbyName,
+      active: true, // New hobbies are active by default
     }
     hobbies.push(newHobby)
     localStorage.setItem('hobbies', JSON.stringify(hobbies))
@@ -66,10 +67,12 @@ export const createDailyProgress = (habits, date) => {
 
   // If the date doesn't exist or has no entries, create/update it with current habits
   if (!storedProgress[date] || Object.keys(storedProgress[date]).length === 0) {
-    storedProgress[date] = habits.reduce((acc, habit) => {
-      acc[habit.id] = { name: habit.name, completed: false } // Store name + completion
-      return acc
-    }, {})
+    storedProgress[date] = habits
+      .filter((habit) => habit.active) // Only include active habits
+      .reduce((acc, habit) => {
+        acc[habit.id] = { name: habit.name, completed: false } // Store name + completion
+        return acc
+      }, {})
 
     localStorage.setItem('habitProgress', JSON.stringify(storedProgress))
   }
