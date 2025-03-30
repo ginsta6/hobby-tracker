@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, onUnmounted } from 'vue'
 
+// eslint-disable-next-line no-unused-vars
 const props = defineProps({
   isOpen: Boolean,
   title: String,

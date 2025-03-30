@@ -34,12 +34,7 @@ const {
           title="Enter the name of your new habit"
           @keydown.enter="saveToHobbiesFormatted(newHobbyName)"
         />
-        <button
-          @click="saveToHobbiesFormatted(newHobbyName)"
-          title="Add new habit"
-        >
-          Add
-        </button>
+        <button @click="saveToHobbiesFormatted(newHobbyName)" title="Add new habit">Add</button>
       </div>
     </div>
 

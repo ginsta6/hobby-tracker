@@ -6,13 +6,10 @@ import {
   markHabitAsCompleted,
   removeFromDay,
 } from '@/utils/localstorage'
-import { nextTick, onMounted, ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 
 const props = defineProps(['date']) // `date` comes from the route
 const hobbyList = ref([])
-const isEditing = ref(false)
-const hobbyInput = ref('')
-const inputFieldHobby = ref(null)
 const progress = ref({})
 
 onMounted(() => {
@@ -32,23 +29,7 @@ watch(
 
 const loadProgress = () => {
   const storedProgress = getProgress()
-  progress.value = { ...storedProgress[props.date] } || {}
-}
-
-const startEditing = () => {
-  isEditing.value = true
-  nextTick(() => inputFieldHobby.value.focus())
-}
-
-const submitInput = () => {
-  if (!isEditing.value) return
-  if (hobbyInput.value !== '') {
-    saveToHobbies(hobbyInput.value)
-    hobbyInput.value = ''
-    hobbyList.value = getHobbies()
-    createDailyProgress(hobbyList.value, props.date)
-    loadProgress()
-  }
+  progress.value = storedProgress[props.date] || {}
 }
 
 const removeFromDayHandler = (hobby) => {
