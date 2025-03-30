@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import DayView from '../views/DayView.vue'
-import HabitManagement from '../views/habit-management.vue'
+import HabitManagement from '../views/HabitView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),

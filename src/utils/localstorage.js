@@ -37,25 +37,21 @@ export const removeFromHobbies = (hobbyID) => {
   let hobbies = getHobbies()
   const storedProgress = getProgress()
 
-  // Filter out the hobby (case-insensitive match)
+  // Filter out the hobby
   hobbies = hobbies.filter((hobby) => hobby.id !== hobbyID)
 
-  // Create a mapping of old IDs to new IDs
-  const idMapping = {}
+  // Reassign IDs sequentially starting from 1
   hobbies.forEach((hobby, index) => {
-    idMapping[hobby.id] = index + 1
+    const oldId = hobby.id
     hobby.id = index + 1
-  })
 
-  // Update progress data with new IDs
-  Object.keys(storedProgress).forEach((date) => {
-    const newProgress = {}
-    Object.entries(storedProgress[date]).forEach(([oldId, data]) => {
-      if (idMapping[oldId]) {
-        newProgress[idMapping[oldId]] = data
+    // Update progress data with new IDs
+    Object.keys(storedProgress).forEach((date) => {
+      if (storedProgress[date][oldId]) {
+        storedProgress[date][hobby.id] = storedProgress[date][oldId]
+        delete storedProgress[date][oldId]
       }
     })
-    storedProgress[date] = newProgress
   })
 
   localStorage.setItem('hobbies', JSON.stringify(hobbies))
