@@ -12,5 +12,3 @@ const props = defineProps(['date']) // `date` comes from the route
     <hobbyList :date="props.date" />
   </div>
 </template>
-
-<style scoped></style>

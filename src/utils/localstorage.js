@@ -88,3 +88,27 @@ export const markHabitAsCompleted = (habitId, date) => {
     localStorage.setItem('habitProgress', JSON.stringify(storedProgress))
   }
 }
+
+// Function to remove a habit from a specific day
+export const removeFromDay = (habitId, date) => {
+  const storedProgress = getProgress()
+  if (storedProgress[date]?.[habitId]) {
+    delete storedProgress[date][habitId]
+    localStorage.setItem('habitProgress', JSON.stringify(storedProgress))
+    return true
+  }
+  return false
+}
+
+// Function to update habit status (active/inactive)
+export const updateHabitStatus = (habitId, isActive) => {
+  const currentHobbies = getHobbies()
+  const updatedHobbies = currentHobbies.map((h) => {
+    if (h.id === habitId) {
+      return { ...h, active: isActive }
+    }
+    return h
+  })
+  localStorage.setItem('hobbies', JSON.stringify(updatedHobbies))
+  return updatedHobbies
+}

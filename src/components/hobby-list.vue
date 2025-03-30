@@ -4,7 +4,7 @@ import {
   getHobbies,
   getProgress,
   markHabitAsCompleted,
-  saveToHobbies,
+  removeFromDay,
 } from '@/utils/localstorage'
 import { nextTick, onMounted, ref, watch } from 'vue'
 
@@ -51,11 +51,8 @@ const submitInput = () => {
   }
 }
 
-const removeFromDay = (hobby) => {
-  const storedProgress = getProgress()
-  if (storedProgress[props.date]?.[hobby.id]) {
-    delete storedProgress[props.date][hobby.id]
-    localStorage.setItem('habitProgress', JSON.stringify(storedProgress))
+const removeFromDayHandler = (hobby) => {
+  if (removeFromDay(hobby.id, props.date)) {
     if (progress.value[hobby.id]) {
       delete progress.value[hobby.id]
     }
@@ -94,7 +91,11 @@ const markDone = (hobby) => {
         <span class="hobby-name" :class="{ 'completed-text': progress[hobby.id]?.completed }">
           {{ hobby.name }}
         </span>
-        <button class="round-button" @click="removeFromDay(hobby)" title="Remove from today's list">
+        <button
+          class="round-button"
+          @click="removeFromDayHandler(hobby)"
+          title="Remove from today's list"
+        >
           <i class="bi bi-x"></i>
         </button>
       </li>
