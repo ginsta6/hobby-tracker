@@ -1,7 +1,7 @@
 <script setup>
 import { useHabitManagement } from '@/composables/useHabitManagement'
-import ConfirmModal from './confirm-modal.vue'
-import '@/assets/styles/habit-management.css'
+import ConfirmModal from '@/components/confirm-modal.vue'
+import '@/assets/habit-management.css'
 
 const {
   hobbies,
