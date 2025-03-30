@@ -1,3 +1,10 @@
+// Function to get and increment nextId from localStorage
+const getNextId = () => {
+  let nextId = parseInt(localStorage.getItem('nextId')) || 1
+  localStorage.setItem('nextId', (nextId + 1).toString())
+  return nextId
+}
+
 // Function to get progress from localStorage
 export const getProgress = () => {
   return JSON.parse(localStorage.getItem('habitProgress')) || {}
@@ -17,7 +24,7 @@ export const saveToHobbies = (hobbyName) => {
   // Check if the hobby already exists (case-insensitive match)
   if (!hobbies.some((hobby) => hobby.name.toLowerCase() === hobbyName.toLowerCase())) {
     const newHobby = {
-      id: hobbies.length + 1, // Assign next ID
+      id: getNextId(),
       name: hobbyName,
       active: true, // New hobbies are active by default
     }
@@ -37,21 +44,14 @@ export const removeFromHobbies = (hobbyID) => {
   let hobbies = getHobbies()
   const storedProgress = getProgress()
 
-  // Filter out the hobby
+  // Filter out the hobby without reassigning IDs
   hobbies = hobbies.filter((hobby) => hobby.id !== hobbyID)
 
-  // Reassign IDs sequentially starting from 1
-  hobbies.forEach((hobby, index) => {
-    const oldId = hobby.id
-    hobby.id = index + 1
-
-    // Update progress data with new IDs
-    Object.keys(storedProgress).forEach((date) => {
-      if (storedProgress[date][oldId]) {
-        storedProgress[date][hobby.id] = storedProgress[date][oldId]
-        delete storedProgress[date][oldId]
-      }
-    })
+  // Remove the hobby from progress data
+  Object.keys(storedProgress).forEach((date) => {
+    if (storedProgress[date][hobbyID]) {
+      delete storedProgress[date][hobbyID]
+    }
   })
 
   localStorage.setItem('hobbies', JSON.stringify(hobbies))
