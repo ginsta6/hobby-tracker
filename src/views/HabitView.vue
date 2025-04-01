@@ -1,23 +1,60 @@
 <script setup>
-import { useHabitManagement } from '@/composables/useHabitManagement'
+import { useHabitStore } from '@/stores/habitStore'
 import ConfirmModal from '@/components/confirm-modal.vue'
 import '@/assets/habit-management.css'
 
-const {
-  hobbies,
-  isEditing,
-  editingHobby,
-  newHobbyName,
-  modalConfig,
-  startEditing,
-  saveEdit,
-  cancelEdit,
-  handleModalConfirm,
-  handleModalCancel,
-  deleteHabit,
-  stopHabit,
-  saveToHobbiesFormatted,
-} = useHabitManagement()
+const store = useHabitStore()
+
+const startEditing = (hobby) => {
+  store.editingHobby = hobby
+  store.newHobbyName = hobby.name
+  store.isEditing = true
+}
+
+const saveEdit = () => {
+  if (!store.newHobbyName.trim()) return
+  store.editHobby(store.editingHobby.id, store.newHobbyName)
+  store.isEditing = false
+  store.editingHobby = null
+  store.newHobbyName = ''
+}
+
+const cancelEdit = () => {
+  store.isEditing = false
+  store.editingHobby = null
+  store.newHobbyName = ''
+}
+
+const deleteHabit = (hobby) => {
+  store.showModal({
+    title: 'Delete Habit',
+    message: 'Are you sure you want to delete this habit? This will remove all its records.',
+    confirmText: 'Delete',
+    cancelText: 'Cancel',
+    onConfirm: () => {
+      store.deleteHobby(hobby.id)
+    },
+  })
+}
+
+const stopHabit = (hobby) => {
+  const action = hobby.active ? 'stop' : 'resume'
+  store.showModal({
+    title: `${action.charAt(0).toUpperCase() + action.slice(1)} Habit`,
+    message: `Are you sure you want to ${action} this habit?`,
+    confirmText: action.charAt(0).toUpperCase() + action.slice(1),
+    cancelText: 'Cancel',
+    onConfirm: () => {
+      store.updateHobbyStatus(hobby.id, !hobby.active)
+    },
+  })
+}
+
+const saveToHobbiesFormatted = (name) => {
+  if (!name.trim()) return
+  store.addHobby(name)
+  store.newHobbyName = ''
+}
 </script>
 
 <template>
@@ -26,26 +63,28 @@ const {
     <div class="add-habit">
       <div class="add-habit-section">
         <input
-          v-model="newHobbyName"
+          v-model="store.newHobbyName"
           type="text"
           class="form-control"
           placeholder="Add new habit"
           required
           title="Enter the name of your new habit"
-          @keydown.enter="saveToHobbiesFormatted(newHobbyName)"
+          @keydown.enter="saveToHobbiesFormatted(store.newHobbyName)"
         />
-        <button @click="saveToHobbiesFormatted(newHobbyName)" title="Add new habit">Add</button>
+        <button @click="saveToHobbiesFormatted(store.newHobbyName)" title="Add new habit">
+          Add
+        </button>
       </div>
     </div>
 
     <div class="habit-list">
-      <div v-if="hobbies.length === 0" class="empty-state">
+      <div v-if="store.hobbies.length === 0" class="empty-state">
         <p>No habits added yet. Add your first habit above!</p>
       </div>
-      <div v-else class="habit-item" v-for="hobby in hobbies" :key="hobby.id">
-        <div v-if="isEditing && editingHobby?.id === hobby.id" class="edit-mode">
+      <div v-else class="habit-item" v-for="hobby in store.hobbies" :key="hobby.id">
+        <div v-if="store.isEditing && store.editingHobby?.id === hobby.id" class="edit-mode">
           <input
-            v-model="newHobbyName"
+            v-model="store.newHobbyName"
             type="text"
             class="form-control"
             title="Edit habit name"
@@ -89,10 +128,10 @@ const {
       </div>
     </div>
     <ConfirmModal
-      v-bind="modalConfig"
-      @confirm="handleModalConfirm"
-      @cancel="handleModalCancel"
-      @close="handleModalCancel"
+      v-bind="store.modalConfig"
+      @confirm="store.handleModalConfirm"
+      @cancel="store.handleModalCancel"
+      @close="store.handleModalCancel"
     />
   </div>
 </template>

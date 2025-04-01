@@ -1,20 +1,16 @@
 <script setup>
-import {
-  createDailyProgress,
-  getHobbies,
-  getProgress,
-  markHabitAsCompleted,
-  removeFromDay,
-} from '@/utils/localstorage'
-import { onMounted, ref, watch } from 'vue'
+import { useHabitStore } from '@/stores/habitStore'
+import { onMounted, ref, watch, computed } from 'vue'
 
 const props = defineProps(['date']) // `date` comes from the route
-const hobbyList = ref([])
+const store = useHabitStore()
 const progress = ref({})
 
+// Initialize store and load hobbies
+store.initialize()
+
 onMounted(() => {
-  hobbyList.value = getHobbies()
-  createDailyProgress(hobbyList.value, props.date)
+  store.createDailyProgress(props.date)
   loadProgress()
 })
 
@@ -22,18 +18,26 @@ onMounted(() => {
 watch(
   () => props.date,
   (newDate) => {
-    createDailyProgress(hobbyList.value, newDate)
+    store.createDailyProgress(newDate)
     loadProgress()
   },
 )
 
 const loadProgress = () => {
-  const storedProgress = getProgress()
-  progress.value = storedProgress[props.date] || {}
+  progress.value = store.getProgressForDate(props.date)
 }
 
+// Get hobbies for the current date from progress
+const currentHabits = computed(() => {
+  return Object.entries(progress.value).map(([id, data]) => ({
+    id: parseInt(id),
+    name: data.name,
+    completed: data.completed,
+  }))
+})
+
 const removeFromDayHandler = (hobby) => {
-  if (removeFromDay(hobby.id, props.date)) {
+  if (store.removeFromDay(hobby.id, props.date)) {
     if (progress.value[hobby.id]) {
       delete progress.value[hobby.id]
     }
@@ -41,7 +45,7 @@ const removeFromDayHandler = (hobby) => {
 }
 
 const markDone = (hobby) => {
-  markHabitAsCompleted(hobby.id, props.date)
+  store.markHabitAsCompleted(hobby.id, props.date)
   if (!progress.value[hobby.id]) {
     progress.value[hobby.id] = {}
   }
@@ -53,23 +57,20 @@ const markDone = (hobby) => {
   <div class="hobby-list-container">
     <ul class="hobby-list">
       <li
-        v-for="hobby in hobbyList.filter((h) => progress[h.id])"
+        v-for="hobby in currentHabits"
         :key="hobby.id"
         class="hobby-item"
-        :class="{ completed: progress[hobby.id]?.completed }"
+        :class="{ completed: hobby.completed }"
       >
         <button
           class="round-button"
           @click="markDone(hobby)"
-          :class="{ completed: progress[hobby.id]?.completed }"
-          :title="progress[hobby.id]?.completed ? 'Mark as incomplete' : 'Mark as complete'"
+          :class="{ completed: hobby.completed }"
+          :title="hobby.completed ? 'Mark as incomplete' : 'Mark as complete'"
         >
-          <i
-            class="bi"
-            :class="progress[hobby.id]?.completed ? 'bi-check-circle-fill' : 'bi-check'"
-          ></i>
+          <i class="bi" :class="hobby.completed ? 'bi-check-circle-fill' : 'bi-check'"></i>
         </button>
-        <span class="hobby-name" :class="{ 'completed-text': progress[hobby.id]?.completed }">
+        <span class="hobby-name" :class="{ 'completed-text': hobby.completed }">
           {{ hobby.name }}
         </span>
         <button
